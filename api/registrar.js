@@ -1,24 +1,22 @@
-import { readJSON, writeJSON } from "./_utils.js";
+import { db } from "./firebase.js";
 
-export default (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Método no permitido" });
-    return;
+    return res.status(405).json({ error: "Método no permitido" });
   }
 
-  const body = req.body;
+  try {
+    const data = req.body;
 
-  if (!body.fecha_llegada || !body.hora_llegada || body.cantidad_viajeros == null) {
-    res.status(400).json({ error: "Datos incompletos" });
-    return;
+    await db.collection("registros").add({
+      fecha_llegada: data.fecha_llegada,
+      hora_llegada: data.hora_llegada,
+      cantidad_viajeros: data.cantidad_viajeros,
+      timestamp: Date.now()
+    });
+
+    return res.status(200).json({ ok: true, mensaje: "Guardado en Firestore" });
+  } catch (e) {
+    return res.status(500).json({ error: "Error guardando en Firestore", detalle: e.toString() });
   }
-
-  const registros = readJSON("registros.json");
-  registros.push(body);
-  writeJSON("registros.json", registros);
-
-  res.status(200).json({
-    ok: true,
-    total_registros: registros.length
-  });
-};
+}
