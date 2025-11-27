@@ -4,5 +4,7 @@
   "type": "module",
   "dependencies": {
     "papaparse": "^5.4.1"
+    "firebase-admin": "^12.0.0",
+    "firebase": "^10.0.0"
   }
 }
